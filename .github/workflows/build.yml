@@ -84,11 +84,12 @@ jobs:
       - name: Build kernel Image with KernelSU
         run: |
           cd ~
-          git clone https://github.com/tiann/KernelSU.git
+          git clone https://github.com/tiann/KernelSU.git || true
           cd $GITHUB_WORKSPACE
           chmod +x ./build_bouquet.sh
-          ./build_bouquet.sh --noclean --ksu -- Image
-          cp ~/Bouquet_marble_out/Image_ksu* ~/dist/
+          ./build_bouquet.sh --noclean --ksu
+          cp -f ~/Bouquet_marble_out/Image_ksu ~/dist/
+          cp -f ~/Bouquet_marble_out/Image_ksu_vmlinux.symvers ~/dist/ || true
       - name: Show ccache stats
         run: ccache --show-stats
       - name: Package AK3
@@ -97,20 +98,18 @@ jobs:
           git clone https://github.com/Pzqqt/AnyKernel3.git -b Marble-Bouquet --depth=1
           cd AnyKernel3
           
-          rm ./Image*
+          rm -f ./Image*
           
-          # Dynamically find and copy dtb and dtbo files
-          find ~/dist -name "*.dtb" -exec cp -f {} ./_dtb/dtb \;
-          find ~/dist -name "dtbo.img" -exec cp -f {} ./_dtb/dtbo.img \;
+          # Copy device tree files from dist/devicetree/
+          cp -f ~/dist/devicetree/*.dtb ./_dtb/dtb || true
+          cp -f ~/dist/devicetree/dtbo.img ./_dtb/dtbo.img || true
           
-          # Safely copy compiled kernel modules into AnyKernel3 folders
-          mkdir -p ./_modules_hyperos/_vendor_boot_modules/
-          find ~/dist -name "*.ko" -exec cp -f {} ./_modules_hyperos/_vendor_boot_modules/ \;
-          
-          # Copy alt and dlkm modules if they exist
-          [ -d ~/dist/alt_kernel_modules ] && cp -f ~/dist/alt_kernel_modules/* ./_modules_hyperos/_alt/ || true
+          # Map build_bouquet.sh output folders directly to AnyKernel3 module paths
+          [ -d ~/dist/vendor_boot_modules ] && cp -f ~/dist/vendor_boot_modules/* ./_modules_hyperos/_vendor_boot_modules/ || true
           [ -d ~/dist/vendor_dlkm_modules ] && cp -f ~/dist/vendor_dlkm_modules/* ./_modules_dlkm/ || true
+          [ -d ~/dist/alt_kernel_modules ] && cp -f ~/dist/alt_kernel_modules/* ./_modules_hyperos/_alt/ || true
           
+          # Copy kernel image (Image_ksu / Image_susfs / Image)
           cp -f ~/dist/Image* ./
           
           python3 ./make_package.py "melt-ci-${BUILD_DATE}-${SHORT_SHA}"
