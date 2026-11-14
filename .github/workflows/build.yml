@@ -99,13 +99,16 @@ jobs:
           
           rm ./Image*
           
-          # Dynamically find and copy dtb and dtbo if they exist anywhere in dist
+          # Dynamically find and copy dtb and dtbo files
           find ~/dist -name "*.dtb" -exec cp -f {} ./_dtb/dtb \;
           find ~/dist -name "dtbo.img" -exec cp -f {} ./_dtb/dtbo.img \;
           
-          # Copy modules safely if the folders exist
+          # Safely copy compiled kernel modules into AnyKernel3 folders
+          mkdir -p ./_modules_hyperos/_vendor_boot_modules/
+          find ~/dist -name "*.ko" -exec cp -f {} ./_modules_hyperos/_vendor_boot_modules/ \;
+          
+          # Copy alt and dlkm modules if they exist
           [ -d ~/dist/alt_kernel_modules ] && cp -f ~/dist/alt_kernel_modules/* ./_modules_hyperos/_alt/ || true
-          [ -d ~/dist/vendor_boot_modules ] && cp -f ~/dist/vendor_boot_modules/* ./_modules_hyperos/_vendor_boot_modules/ || true
           [ -d ~/dist/vendor_dlkm_modules ] && cp -f ~/dist/vendor_dlkm_modules/* ./_modules_dlkm/ || true
           
           cp -f ~/dist/Image* ./
