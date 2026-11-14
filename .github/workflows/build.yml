@@ -78,6 +78,7 @@ jobs:
       - name: Build kernel Image & modules
         run: |
           cd $GITHUB_WORKSPACE
+          chmod +x ./build_bouquet.sh
           ./build_bouquet.sh
           cp -r ~/Bouquet_marble_out/* ~/dist/
       - name: Build kernel Image with KernelSU
