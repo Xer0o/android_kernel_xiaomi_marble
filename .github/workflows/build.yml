@@ -85,6 +85,7 @@ jobs:
           cd ~
           git clone https://github.com/tiann/KernelSU.git
           cd $GITHUB_WORKSPACE
+          chmod +x ./build_bouquet.sh
           ./build_bouquet.sh --noclean --ksu -- Image
           cp ~/Bouquet_marble_out/Image_ksu* ~/dist/
       - name: Show ccache stats
