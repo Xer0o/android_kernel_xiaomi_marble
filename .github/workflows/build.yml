@@ -20,12 +20,12 @@ jobs:
       - name: Download Slim LLVM
         if: steps.slim-llvm-cache.outputs.cache-hit != 'true'
         run: |
-          sudo apt install -y aria2
+          sudo apt install -y wget
           
           echo "Downloading Slim LLVM..."
           mkdir -p ~/build_toolchain
           cd ~/build_toolchain
-          aria2c https://mirrors.edge.kernel.org/pub/tools/llvm/files/llvm-23.1.5-x86_64.tar.xz
+          wget https://mirrors.edge.kernel.org/pub/tools/llvm/files/llvm-23.1.5-x86_64.tar.xz
       - name: Prepare the environment
         run: |
           [ -d ~/.local/bin ] || mkdir -p ~/.local/bin
